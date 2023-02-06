@@ -539,6 +539,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &       uu(ptsx,jmax),      duudx(ptsx,jmax),    
      &       dv(ptsx,jmax), c(ptsx,jmax), erro
 
+      real*8 tauxx(ptsx,jmax) 
+      real*8 tauyy(ptsx,jmax)
+      real*8 tauxx(ptsx,jmax) 
+      
+      real*8 aux(ptsx,jmax) 
+      real*8 mu_tauxx(ptsx,jmax) 
+      real*8 mu_tauxy(ptsx,jmax) 
+      real*8 mu_tauyy(ptsx,jmax) 
+      
+      real*8 d2mu_tauxydx2(ptsx,jmax) 
+      real*8 d2mu_tauxydy2(ptsx,jmax) 
+      real*8 daux(ptsx,jmax) 
+
       do j = 1, jmax
         do i = 1, ptsx
           uwz(i,j) = ux(i,j) * wz(i,j)
@@ -551,10 +564,37 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call derparx(duwzdx, uwz)
       call derparx(duudx, uu)
       call derparxx(d2wzdx2, wz)
-
+      
       ! y-direction derivatives
       call dery(dvwzdy, vwz)
       call deryy(d2wzdy2, wz)
+
+      ! tensor calculation 
+      
+      ! tau_xx
+      call derparx(tauxx, 2d0*ux)
+     
+      ! tau_yy 
+      call dery(tauyy, 2d0*uy)
+      
+      ! tau_xy
+      call derparx(tauxy, uy)
+      call dery(aux, ux)
+      tauxy = tauxy + aux
+
+      do j = 1, jmax
+        do i = 1, ptsx
+          mu_tauxx(i,j) = mu(i,j)*tauxx(i,j)  
+          mu_tauxy(i,j) = mu(i,j)*tauxy(i,j)  
+          mu_tauyy(i,j) = mu(i,j)*tauyy(i,j)  
+        enddo
+      enddo  
+
+      call derparxx(d2mu_tauxydx2, mu_tauxy)
+      call deryy(d2mu_tauxydy2, mu_tauxy)
+   
+      call derparx(aux, mu_tauxx-mu_tauyy)
+      call derpary(daux, aux)  
 
       ! Ensuring outflow BC
       if (my_rank .eq. numproc) then
@@ -567,6 +607,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           dv(i,j) = - duwzdx(i,j) - dvwzdy(i,j) 
      &              + Go2Re_base*duudx(i,j)
      &              + ( d2wzdx2(i,j) + fac_y * d2wzdy2(i,j) ) / Re
+          dv(i,j) = - duwzdx(i,j) - dvwzdy(i,j) 
+     &              + Go2Re_base*duudx(i,j)
+     &              + ( -d2mu_tauxydx2 + d2mu_tauxydy2 + daux ) / Re
         end do
       end do
 
