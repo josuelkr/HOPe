@@ -419,6 +419,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &       uxbt(imax,jmax), uybt(imax,jmax), wzbt(imax,jmax), xad,
      &       ue, afil(ptsx), bfil(ptsx), cfil(ptsx), ueptsx(ptsx)
 
+      real*8 mubt(imax,jmax)  
+
       common/filt/ afil, bfil, cfil
       ! mount the lu matrix for the filter
       call lhs_tridf(afil, bfil, cfil)
@@ -437,11 +439,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         end do
       end do
 
+      mu = 0.d0
+
       ! reads the boundary layer profile
       open(1, file = '../pre_processing/base_fs.bin',
      &     form = 'unformatted')
       read(1) uxbt, uybt, wzbt, thbt
       close(unit = 1)
+
+      mubt = 1.d0
 
       ! give the values of the boundary layer profile for each node
       do j = 1, jmax
@@ -450,6 +456,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           uy(i,j) = uybt(i+shift,j)
           wz(i,j) = wzbt(i+shift,j)
           th(i,j) = thbt(i+shift,j)
+          mu(i,j) = mubt(i+shift,j)
         end do
       end do
  
