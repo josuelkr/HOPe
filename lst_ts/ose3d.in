@@ -1,0 +1,11 @@
+ &osedata
+ re0     = 751.50d0,
+ w0      = 2.6134d-02
+ alfa0   = (0.08658,1.9598d-5)
+ jedge   = 251,
+ bl      = 0.7d0
+ etamax  = 7.d0,
+ beta    = 0.0d0
+ wslope  = 0.3320548d0
+ &end
+! original

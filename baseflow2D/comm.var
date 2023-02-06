@@ -1,0 +1,4 @@
+      real*8 ux(ptsx,jmax), uy(ptsx,jmax), wz(ptsx,jmax),
+     &       th(ptsx,jmax), duexmdx(ptsx)
+
+      common/var/ ux, uy, wz, th, duexmdx
